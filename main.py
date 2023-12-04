@@ -1,5 +1,6 @@
 enum_cunter=0;
 from enum import Enum
+import subprocess , os
 import sys
 def NewEnum(reset=False):
     global enum_cunter;
@@ -43,8 +44,16 @@ def simulate_program(program):
         else:
             assert False,"Unreachable"
 
-def compile_program(program):
-    assert False,"Not Implemented"
+def compile_program(program,out_file_path):
+    with open(out_file_path,"w") as output:
+            output.write("""
+segment .text
+global _start
+_start:
+    mov rax,60
+    mov rdi,69
+    syscall
+                """)
 
 # TODO : UnhardCode Program
 program = [
@@ -75,10 +84,11 @@ if __name__ == "__main__":
     if subcommand == 'sim':
         simulate_program(program)
     elif subcommand == 'com':
-        compile_program(program);
+        compile_program(program,r"bin/output.asm");
+        os.system("nasm -fwin64 bin/output.asm -o bin/output.o")
+        os.system("ld -s -o bin/output.exe bin/output.o")
+
     else:
-        usage
+        usage()
         print(f"Error : Unknown subcommand {subcommand}")
-
-
-'32:46'
+        exit(1)
